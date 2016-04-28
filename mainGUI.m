@@ -84,18 +84,22 @@ function menu_Callback(hObject, eventdata, handles)
 end
 
 
+function figure1_WindowButtonDownFcn(hObject, eventdata, handles)
+end
+
+
 % --------------------------------------------------------------------
 function abrir_Callback(hObject, eventdata, handles)
 % Funcao para abrir uma imagem
 
     global imgsArray   % Array com todas as imagens
-    imgsArray = [];
-    
     global count   % Contador referencia fase atual do processo
-    count = 1;
     
     [path_file, user_cancel] = imgetfile();
     if ~user_cancel
+        count = 1;
+        imgsArray = [];
+    
         handles.arquivo = path_file;
         handles.atual = im2uint8(imread(path_file));
         imgsArray{count} = handles.atual;
@@ -161,6 +165,8 @@ function pushbutton1_Callback(hObject, eventdata, handles)
             [escolha, tam] = esolhaMM;
             disp(strcat('Escolha:', escolha));
             disp(strcat('Tamanho:', tam));
+            tam = round(str2double(tam))
+            
             if tam > 0
                 if strcmp(escolha, 'Erosao')
                     imgsArray{count} = erode(imgsArray{count - 1}, tam);
@@ -245,7 +251,7 @@ function [escolha, tam] = esolhaMM
     edit = uicontrol('Parent',d,...
            'Style','edit',...
            'Position',[120 70 40 25],...
-           'String','0',...
+           'String','',...
            'Callback',@edit_callback);
        
     btn = uicontrol('Parent',d,...
@@ -271,7 +277,7 @@ function [escolha, tam] = esolhaMM
     end
 
     function edit_callback(edit,callbackdata)
-        text = get(edit,'String');
-        tam = round(str2double(text));
+        tam = get(edit,'String');
+%         tam = round(str2double(text));
     end
 end
