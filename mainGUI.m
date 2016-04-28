@@ -61,6 +61,8 @@ guidata(hObject, handles);
 
 % UIWAIT makes pratica01GUI wait for user response (see UIRESUME)
 % uiwait(handles.figure1);
+global count
+count = 0;
 end
 
 
@@ -118,7 +120,7 @@ function salvar_Callback(hObject, eventdata, handles)
 global imgsArray
 global count
 
-    if ~isempty(count)
+    if count > 0
         [path_file, user_cancel] = imsave();
         if ~user_cancel
             imwrite(imgsArray{count}, path_file);
@@ -165,7 +167,6 @@ function pushbutton1_Callback(hObject, eventdata, handles)
             [escolha, tam] = esolhaMM;
             disp(strcat('Escolha:', escolha));
             disp(strcat('Tamanho:', tam));
-            tam = round(str2double(tam))
             
             if tam > 0
                 if strcmp(escolha, 'Erosao')
