@@ -99,7 +99,7 @@ function abrir_Callback(hObject, eventdata, handles)
     global labels
     global labelsArray % Array com os textos de todas as operacoes
     
-    labels = {'Imagem Original'; 'H + V'; 'Resultado K-means'; 'Imagem Erodida'; 'Imagem Dilatada'};
+    labels = {'Imagem Original'; 'H + V'; 'Resultado K-means'; 'Imagem Erodida'; 'Imagem Dilatada'; 'Imagem Final'};
     
     [path_file, user_cancel] = imgetfile();
     if ~user_cancel
@@ -183,27 +183,45 @@ function pushbutton1_Callback(hObject, eventdata, handles)
             end
 
         otherwise
-            [escolha, tam] = esolhaMM;
-            disp(strcat('Escolha:', escolha));
-            disp(strcat('Tamanho:', tam));
-            tam = round(str2double(tam));
+            e_etapa = escolhaEtapa;
             
-            if tam > 0
-                if strcmp(escolha, 'Erosao')
-                    imgsArray{count} = erode(imgsArray{count - 1}, tam);
-                    trocaHandles(hObject, handles);
-                    
-                    labelsArray{count} = labels(4);
-                    set(findobj(gcf, 'Tag', 'text1'), 'String', labelsArray{count - 1});
-                    set(findobj(gcf, 'Tag', 'text2'), 'String', labelsArray{count});
-                elseif strcmp(escolha, 'Dilatacao')
-                    imgsArray{count} = dilata(imgsArray{count - 1}, tam);
-                    trocaHandles(hObject, handles);
-                    
-                    labelsArray{count} = labels(5);
-                    set(findobj(gcf, 'Tag', 'text1'), 'String', labelsArray{count - 1});
-                    set(findobj(gcf, 'Tag', 'text2'), 'String', labelsArray{count});
-                end
+            if strcmp(e_etapa, 'Contar Sementes')
+%                 count = count - 1;
+                
+                cor_fundo = input('Fornecer a cor do fundo: ');
+                % Retira partes pretas da imagem
+                [imgsArray{count}, cor_semente] = posProcessamento(imgsArray{count - 1}, cor_fundo);
+%                 imgsArray{count} = img;
+                % Calcula a quantida de sementes na imagem
+                quantidadeSementes(imgsArray{count}, cor_semente);
+                
+                trocaHandles(hObject, handles);
+
+                labelsArray{count} = labels(6);
+                set(findobj(gcf, 'Tag', 'text1'), 'String', labelsArray{count - 1});
+                set(findobj(gcf, 'Tag', 'text2'), 'String', labelsArray{count});
+                
+            elseif strcmp(e_etapa, 'Pós-processamento')
+               [e_mm, tam] = esolhaMM;
+                tam = round(str2double(tam));
+
+                if tam > 0
+                    if strcmp(e_mm, 'Erosao')
+                        imgsArray{count} = erode(imgsArray{count - 1}, tam);
+                        trocaHandles(hObject, handles);
+
+                        labelsArray{count} = labels(4);
+                        set(findobj(gcf, 'Tag', 'text1'), 'String', labelsArray{count - 1});
+                        set(findobj(gcf, 'Tag', 'text2'), 'String', labelsArray{count});
+                    elseif strcmp(e_mm, 'Dilatacao')
+                        imgsArray{count} = dilata(imgsArray{count - 1}, tam);
+                        trocaHandles(hObject, handles);
+
+                        labelsArray{count} = labels(5);
+                        set(findobj(gcf, 'Tag', 'text1'), 'String', labelsArray{count - 1});
+                        set(findobj(gcf, 'Tag', 'text2'), 'String', labelsArray{count});
+                    end
+                end 
             end
 
     end
@@ -269,8 +287,8 @@ function trocaHandles(hObject, handles)
 end
 
 
-function [escolha, tam] = esolhaMM
-    d = dialog('Position',[300 300 245 150],'Name','Pos processamento');
+function [e_mm, tam] = esolhaMM
+    d = dialog('Position',[300 300 245 150],'Name','Pós-processamento');
     txt1 = uicontrol('Parent',d,...
            'Style','text',...
            'Position',[10 80 80 30],...
@@ -298,7 +316,7 @@ function [escolha, tam] = esolhaMM
            'String','Ok',...
            'Callback','delete(gcf)');
        
-    escolha = 'Erosao';
+    e_mm = 'Erosao';
     tam = '0';
        
     % Wait for d to close before running to completion
@@ -312,11 +330,47 @@ function [escolha, tam] = esolhaMM
         % For R2014a and earlier:
         idx = get(popup,'Value');
         popup_items = get(popup,'String');
-        escolha = char(popup_items(idx,:));
+        e_mm = char(popup_items(idx,:));
     end
 
     function edit_callback(edit,callbackdata)
         tam = get(edit,'String');
 %         tam = round(str2double(text));
+    end
+end
+
+
+function e_etapa = escolhaEtapa
+    d = dialog('Position',[300 300 270 150],'Name','Proxima Etapa');
+    txt = uicontrol('Parent',d,...
+           'Style','text',...
+           'Position',[0 90 280 35],...
+           'String','Contar sementes ou executar um pós-processamento?');
+       
+    popup = uicontrol('Parent',d,...
+           'Style','popup',...
+           'Position',[50 60 150 25],...
+           'String',{'Contar Sementes';'Pós-processamento'},...
+           'Callback',@popup_callback);
+       
+    btn = uicontrol('Parent',d,...
+           'Position',[89 20 70 25],...
+           'String','Ok',...
+           'Callback','delete(gcf)');
+       
+    e_etapa = 'Contar Sementes';
+       
+    % Wait for d to close before running to completion
+    uiwait(d);
+   
+    function popup_callback(popup,callbackdata)
+        % idx = popup.Value;
+        % popup_items = popup.String;
+        % This code uses dot notation to get properties.
+        % Dot notation runs in R2014b and later.
+        % For R2014a and earlier:
+        idx = get(popup,'Value');
+        popup_items = get(popup,'String');
+        e_etapa = char(popup_items(idx,:));
     end
 end
