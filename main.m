@@ -20,8 +20,6 @@ imagem = imread('Imagens2/Teste2.jpg');
 % imagem = imread('Imagens2/Teste3.jpg');
 % imagem = imread('Imagens2/Teste4.jpg');
 % imagem = imread('Imagens2/Teste5.jpg');
-% imagem = imread('Imagens2/Teste6.jpg');
-% imagem = imread('Imagens2/Teste7.jpg');
 
 % imagem = imread('Imagens/Redimensionada1.png');
 % imagem = imread('Imagens/IMG_20160412_162833766.jpg');
@@ -40,8 +38,8 @@ imshow(img_segmentada)
 
 
 % Cria um elemento estruturante no formato de disco e dilata a imagem %
-img_MM = erode(img_segmentada, 10);
-img_MM = dilata(img_MM, 6);
+img_MM = erode(img_segmentada, 11);
+img_MM = dilata(img_MM, 3);
 % ------------------------------------------------------------------- %
 
 

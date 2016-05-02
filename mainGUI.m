@@ -96,16 +96,25 @@ function abrir_Callback(hObject, eventdata, handles)
 
     global imgsArray   % Array com todas as imagens
     global count   % Contador referencia fase atual do processo
+    global labels
+    global labelsArray % Array com os textos de todas as operacoes
+    
+    labels = {'Imagem Original'; 'H + V'; 'Resultado K-means'; 'Imagem Erodida'; 'Imagem Dilatada'};
     
     [path_file, user_cancel] = imgetfile();
     if ~user_cancel
         count = 1;
         imgsArray = [];
+        labelsArray = [];
     
         handles.arquivo = path_file;
         handles.atual = im2uint8(imread(path_file));
         imgsArray{count} = handles.atual;
         trocaHandles( hObject, handles );
+        
+        labelsArray{count} = labels(1);
+        set(findobj(gcf, 'Tag', 'text1'), 'String', 'Anterior');
+        set(findobj(gcf, 'Tag', 'text2'), 'String', labelsArray{count});
     end
     handles.px2min = NaN;
     guidata(hObject, handles);
@@ -142,14 +151,20 @@ function pushbutton1_Callback(hObject, eventdata, handles)
 
     global imgsArray
     global count
+    global labels
+    global labelsArray
     count = count + 1;
-
+    
     switch count
         case 2
             % Soma as bandas H e V do sistema de cor HSV %
             if isfield( handles, 'atual' )
                 imgsArray{count} = preProcessamento(imgsArray{count - 1});
                 trocaHandles(hObject, handles);
+                
+                labelsArray{count} = labels(count);
+                set(findobj(gcf, 'Tag', 'text1'), 'String', labelsArray{count - 1});
+                set(findobj(gcf, 'Tag', 'text2'), 'String', labelsArray{count});
             else
                 msgbox('Imagem nao foi carregada!', 'Error', 'Error');
             end
@@ -159,6 +174,10 @@ function pushbutton1_Callback(hObject, eventdata, handles)
             if isfield( handles, 'atual' )
                 imgsArray{count} = segmentacao(imgsArray{count - 1});
                 trocaHandles(hObject, handles);
+                
+                labelsArray{count} = labels(count);
+                set(findobj(gcf, 'Tag', 'text1'), 'String', labelsArray{count - 1});
+                set(findobj(gcf, 'Tag', 'text2'), 'String', labelsArray{count});
             else
                 msgbox('Imagem nao foi carregada!', 'Error', 'Error');
             end
@@ -167,14 +186,23 @@ function pushbutton1_Callback(hObject, eventdata, handles)
             [escolha, tam] = esolhaMM;
             disp(strcat('Escolha:', escolha));
             disp(strcat('Tamanho:', tam));
+            tam = round(str2double(tam));
             
             if tam > 0
                 if strcmp(escolha, 'Erosao')
                     imgsArray{count} = erode(imgsArray{count - 1}, tam);
                     trocaHandles(hObject, handles);
+                    
+                    labelsArray{count} = labels(4);
+                    set(findobj(gcf, 'Tag', 'text1'), 'String', labelsArray{count - 1});
+                    set(findobj(gcf, 'Tag', 'text2'), 'String', labelsArray{count});
                 elseif strcmp(escolha, 'Dilatacao')
                     imgsArray{count} = dilata(imgsArray{count - 1}, tam);
                     trocaHandles(hObject, handles);
+                    
+                    labelsArray{count} = labels(5);
+                    set(findobj(gcf, 'Tag', 'text1'), 'String', labelsArray{count - 1});
+                    set(findobj(gcf, 'Tag', 'text2'), 'String', labelsArray{count});
                 end
             end
 
@@ -187,11 +215,21 @@ function pushbutton2_Callback(hObject, eventdata, handles)
 
     global imgsArray
     global count
+    global labelsArray
 
     % Nao tenta retirar a imagem lida
     if count > 1    
         imgsArray{count} = [];  % Apaga imagem atual do array
+        labelsArray{count} = [];  % Apaga texto atual do array
         count = count - 1;      % Volta 1 imagem
+        
+        % Troca texto atual pelo anterior e anterior por uma mais anterior ainda
+        if count ~= 1
+            set(findobj(gcf, 'Tag', 'text1'), 'String', labelsArray{count - 1});
+        else
+            set(findobj(gcf, 'Tag', 'text1'), 'String', 'Anterior');
+        end
+        set(findobj(gcf, 'Tag', 'text2'), 'String', labelsArray{count});
 
         % Troca imagem atual pela anterior e anterior por uma mais anterior ainda
         trocaHandles(hObject, handles);
