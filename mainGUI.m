@@ -22,7 +22,7 @@ function varargout = mainGUI(varargin)
 
 % Edit the above text to modify the response to help pratica01GUI
 
-% Last Modified by GUIDE v2.5 27-Apr-2016 21:07:17
+% Last Modified by GUIDE v2.5 02-May-2016 20:32:59
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -186,12 +186,10 @@ function pushbutton1_Callback(hObject, eventdata, handles)
             e_etapa = escolhaEtapa;
             
             if strcmp(e_etapa, 'Contar Sementes')
-%                 count = count - 1;
+                cor_fundo = escolhaCor;
                 
-                cor_fundo = input('Fornecer a cor do fundo: ');
                 % Retira partes pretas da imagem
                 [imgsArray{count}, cor_semente] = posProcessamento(imgsArray{count - 1}, cor_fundo);
-%                 imgsArray{count} = img;
                 % Calcula a quantida de sementes na imagem
                 quantidadeSementes(imgsArray{count}, cor_semente);
                 
@@ -364,13 +362,45 @@ function e_etapa = escolhaEtapa
     uiwait(d);
    
     function popup_callback(popup,callbackdata)
-        % idx = popup.Value;
-        % popup_items = popup.String;
-        % This code uses dot notation to get properties.
-        % Dot notation runs in R2014b and later.
-        % For R2014a and earlier:
         idx = get(popup,'Value');
         popup_items = get(popup,'String');
         e_etapa = char(popup_items(idx,:));
+    end
+end
+
+
+function e_cor = escolhaCor
+    d = dialog('Position',[300 300 270 150],'Name','Contar Sementes');
+    txt = uicontrol('Parent',d,...
+           'Style','text',...
+           'Position',[0 90 280 35],...
+           'String','O fundo da imagem na etapa atual é:');
+       
+    popup = uicontrol('Parent',d,...
+           'Style','popup',...
+           'Position',[50 60 150 25],...
+           'String',{'Verde';'Vermelho'},...
+           'Callback',@popup_callback);
+       
+    btn = uicontrol('Parent',d,...
+           'Position',[89 20 70 25],...
+           'String','Ok',...
+           'Callback','delete(gcf)');
+       
+    e_cor = 2;
+       
+    % Wait for d to close before running to completion
+    uiwait(d);
+   
+    function popup_callback(popup,callbackdata)
+        idx = get(popup,'Value');
+        popup_items = get(popup,'String');
+        text = char(popup_items(idx,:));
+        
+        if strcmp(text, 'Verde')
+            e_cor = 2;
+        elseif strcmp(text, 'Vermelho')
+            e_cor = 1;
+        end
     end
 end
