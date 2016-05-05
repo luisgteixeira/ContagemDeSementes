@@ -190,8 +190,65 @@ function pushbutton1_Callback(hObject, eventdata, handles)
                 
                 % Retira partes pretas da imagem
                 [imgsArray{count}, cor_semente] = posProcessamento(imgsArray{count - 1}, cor_fundo);
+                
+                % Imagem em tons de cinza das sementes detectadas
+                img = imgsArray{count}(:,:,cor_semente);
                 % Calcula a quantida de sementes na imagem
-                quantidadeSementes(imgsArray{count}, cor_semente);
+%                 quantidadeSementes(imgsArray{count}, cor_semente);
+
+                [bw, ~, ~] = maiorRegiao(img);
+                
+                s = regionprops(bw, 'MajorAxisLength'); % Tamanho do maior elemento
+                bw = imdilate(img, strel('disk', round( 2 * s.MajorAxisLength / 3)));
+                
+                % Maior regiao com a imagem ja dilatada, contendo apenas as
+                % regioes gerais de cada grupo
+                [bw, L, n] = maiorRegiao(bw);
+                
+                
+                for k = 1 : n
+                    % Sinaliza que ainda nao encontrou o primeiro pixel regiao
+                    flag = true;
+                    % Posicao a ser escrita a quantidade de sementes
+                    pos = [0 0];
+                    
+                    img_aux = L;
+                    img_aux(L~=k) = 0;
+                    
+                    % Imagem que auxiliara na contagem de cada grupo de semente
+                    img2 = zeros(size(img));
+                    
+                    for i = 1 : size(img,1)
+                        for j = 1 : size(img,2)
+                            % Regiao esta na mascara e eh uma das sementes
+                            % detectadas
+                            if img_aux(i,j) == k && img(i,j) == 255
+                                img2(i,j) = 255;
+                            end
+                        end
+                    end
+                    imwrite(img_aux, 'teste.png');
+                    pos = regionprops(img_aux, 'centroid');
+                    % Calcula a quantida de sementes na imagem
+                    qntd = quantidadeSementes(img2, 1);
+                    imgsArray{count} = insertText(imgsArray{count},...
+                                        pos.Centroid(255),qntd,'FontSize',...
+                                        18,'BoxColor','blue','BoxOpacity',...
+                                        0.4,'TextColor','white');
+                    
+                end
+                
+% %                 for k = 1 : n
+%                     for i = 1 : size(img,1)
+%                         for j = 1 : size(img,2)
+%                             if L(i,j) == 1 && bw(i,j) == 1
+%                                 img2(i,j) = 255;
+%                             end
+%                         end
+%                     end
+%                     imgsArray{count} = img2;
+% %                     insertText(imgsArray{count}, [10 415], n);
+% %                 end
                 
                 trocaHandles(hObject, handles);
 

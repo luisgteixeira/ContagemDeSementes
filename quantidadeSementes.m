@@ -1,4 +1,4 @@
-function quantidadeSementes( imagem, cor_semente )
+function [ qntdSementes ] = quantidadeSementes( imagem, cor_semente )
 %	Calcula a quantida de sementes na imagem
 
     [~,qntdSementes] = bwlabel(imagem(:,:,cor_semente),8);
