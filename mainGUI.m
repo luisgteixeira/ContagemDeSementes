@@ -99,7 +99,7 @@ function abrir_Callback(hObject, eventdata, handles)
     global labels
     global labelsArray % Array com os textos de todas as operacoes
     
-    labels = {'Imagem Original'; 'H + V'; 'Resultado K-means'; 'Imagem Erodida'; 'Imagem Dilatada'; 'Imagem Final'};
+    labels = {'Imagem Original'; 'H + V'; 'Resultado K-means'; 'Imagem Binarizada';'Imagem Erodida'; 'Imagem Dilatada'; 'Imagem Final'};
     
     [path_file, user_cancel] = imgetfile();
     if ~user_cancel
@@ -182,35 +182,38 @@ function pushbutton1_Callback(hObject, eventdata, handles)
                 msgbox('Imagem nao foi carregada!', 'Error', 'Error');
             end
 
+        case 4
+            cor_semente = escolhaCor;
+            imgsArray{count} = imgsArray{count-1}(:,:,cor_semente);    % Banda de cor que contem o fundo
+            
+            trocaHandles(hObject, handles);
+                
+            labelsArray{count} = labels(count);
+            set(findobj(gcf, 'Tag', 'text1'), 'String', labelsArray{count - 1});
+            set(findobj(gcf, 'Tag', 'text2'), 'String', labelsArray{count});
         otherwise
             e_etapa = escolhaEtapa;
             
             if strcmp(e_etapa, 'Contar Sementes')
-                cor_fundo = escolhaCor;
-                
-                % Retira partes pretas da imagem
-                [imgsArray{count}, cor_semente] = posProcessamento(imgsArray{count - 1}, cor_fundo);
-                
                 % Imagem em tons de cinza das sementes detectadas
-                img = imgsArray{count}(:,:,cor_semente);
-                % Calcula a quantida de sementes na imagem
-%                 quantidadeSementes(imgsArray{count}, cor_semente);
+                img = imgsArray{count-1};
 
                 [bw, ~, ~] = maiorRegiao(img);
                 
                 s = regionprops(bw, 'MajorAxisLength'); % Tamanho do maior elemento
-                bw = imdilate(img, strel('disk', round( 2 * s.MajorAxisLength / 3)));
+                tam = s.MajorAxisLength * 6 / 10;   % 60% do tamanho do maior elemento
+                bw = imdilate(img, strel('disk', round(tam)));
                 
                 % Maior regiao com a imagem ja dilatada, contendo apenas as
                 % regioes gerais de cada grupo
-                [bw, L, n] = maiorRegiao(bw);
+                [~, L, n] = maiorRegiao(bw);
                 
                 
                 for k = 1 : n
-                    % Sinaliza que ainda nao encontrou o primeiro pixel regiao
-                    flag = true;
-                    % Posicao a ser escrita a quantidade de sementes
-                    pos = [0 0];
+%                     % Sinaliza que ainda nao encontrou o primeiro pixel regiao
+%                     flag = true;
+%                     % Posicao a ser escrita a quantidade de sementes
+%                     pos = [0 0];
                     
                     img_aux = L;
                     img_aux(L~=k) = 0;
@@ -227,37 +230,26 @@ function pushbutton1_Callback(hObject, eventdata, handles)
                             end
                         end
                     end
-                    imwrite(img_aux, 'teste.png');
-                    pos = regionprops(img_aux, 'centroid');
+%                     pos = regionprops(img_aux, 'centroid');
+
                     % Calcula a quantida de sementes na imagem
                     qntd = quantidadeSementes(img2, 1);
-                    imgsArray{count} = insertText(imgsArray{count},...
-                                        pos.Centroid(255),qntd,'FontSize',...
-                                        18,'BoxColor','blue','BoxOpacity',...
-                                        0.4,'TextColor','white');
+                    fprintf('[Grupo %d] Contem %d sementes!\n', k, qntd);
+%                     imgsArray{count} = insertText(imgsArray{count},...
+%                                         round(pos(255).Centroid),qntd,'FontSize',...
+%                                         18,'BoxColor','blue','BoxOpacity',...
+%                                         0.4,'TextColor','white');
                     
                 end
                 
-% %                 for k = 1 : n
-%                     for i = 1 : size(img,1)
-%                         for j = 1 : size(img,2)
-%                             if L(i,j) == 1 && bw(i,j) == 1
-%                                 img2(i,j) = 255;
-%                             end
-%                         end
-%                     end
-%                     imgsArray{count} = img2;
-% %                     insertText(imgsArray{count}, [10 415], n);
-% %                 end
-                
-                trocaHandles(hObject, handles);
-
-                labelsArray{count} = labels(6);
-                set(findobj(gcf, 'Tag', 'text1'), 'String', labelsArray{count - 1});
-                set(findobj(gcf, 'Tag', 'text2'), 'String', labelsArray{count});
+%                 trocaHandles(hObject, handles);
+% 
+%                 labelsArray{count} = labels(7);
+%                 set(findobj(gcf, 'Tag', 'text1'), 'String', labelsArray{count - 1});
+%                 set(findobj(gcf, 'Tag', 'text2'), 'String', labelsArray{count});
                 
             elseif strcmp(e_etapa, 'Pós-processamento')
-               [e_mm, tam] = esolhaMM;
+                [e_mm, tam] = esolhaMM;
                 tam = round(str2double(tam));
 
                 if tam > 0
@@ -265,14 +257,14 @@ function pushbutton1_Callback(hObject, eventdata, handles)
                         imgsArray{count} = erode(imgsArray{count - 1}, tam);
                         trocaHandles(hObject, handles);
 
-                        labelsArray{count} = labels(4);
+                        labelsArray{count} = labels(5);
                         set(findobj(gcf, 'Tag', 'text1'), 'String', labelsArray{count - 1});
                         set(findobj(gcf, 'Tag', 'text2'), 'String', labelsArray{count});
                     elseif strcmp(e_mm, 'Dilatacao')
                         imgsArray{count} = dilata(imgsArray{count - 1}, tam);
                         trocaHandles(hObject, handles);
 
-                        labelsArray{count} = labels(5);
+                        labelsArray{count} = labels(6);
                         set(findobj(gcf, 'Tag', 'text1'), 'String', labelsArray{count - 1});
                         set(findobj(gcf, 'Tag', 'text2'), 'String', labelsArray{count});
                     end
@@ -291,7 +283,7 @@ function pushbutton2_Callback(hObject, eventdata, handles)
     global labelsArray
 
     % Nao tenta retirar a imagem lida
-    if count > 1    
+    if count > 1
         imgsArray{count} = [];  % Apaga imagem atual do array
         labelsArray{count} = [];  % Apaga texto atual do array
         count = count - 1;      % Volta 1 imagem
@@ -431,7 +423,7 @@ function e_cor = escolhaCor
     txt = uicontrol('Parent',d,...
            'Style','text',...
            'Position',[0 90 280 35],...
-           'String','O fundo da imagem na etapa atual é:');
+           'String','A cor da(s) semente(s) na etapa atual é:');
        
     popup = uicontrol('Parent',d,...
            'Style','popup',...
