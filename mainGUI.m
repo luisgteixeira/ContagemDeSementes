@@ -99,7 +99,7 @@ function abrir_Callback(hObject, eventdata, handles)
     global labels
     global labelsArray % Array com os textos de todas as operacoes
     
-    labels = {'Imagem Original'; 'H + V'; 'Resultado K-means'; 'Imagem Binarizada';'Imagem Erodida'; 'Imagem Dilatada'; 'Imagem Final'};
+    labels = {'Imagem Original'; 'H + V'; 'Resultado K-means'; 'Imagem Binarizada';'Imagem Erodida'; 'Imagem Dilatada'; 'ROI'; 'Imagem Final'};
     
     [path_file, user_cancel] = imgetfile();
     if ~user_cancel
@@ -244,7 +244,7 @@ function pushbutton1_Callback(hObject, eventdata, handles)
                 
 %                 trocaHandles(hObject, handles);
 % 
-%                 labelsArray{count} = labels(7);
+%                 labelsArray{count} = labels(8);
 %                 set(findobj(gcf, 'Tag', 'text1'), 'String', labelsArray{count - 1});
 %                 set(findobj(gcf, 'Tag', 'text2'), 'String', labelsArray{count});
                 
@@ -268,7 +268,14 @@ function pushbutton1_Callback(hObject, eventdata, handles)
                         set(findobj(gcf, 'Tag', 'text1'), 'String', labelsArray{count - 1});
                         set(findobj(gcf, 'Tag', 'text2'), 'String', labelsArray{count});
                     end
-                end 
+                end
+            elseif strcmp(e_etapa, 'Selecionar ROI')
+                imgsArray{count} = selecionaROI(imgsArray{count - 1});
+                trocaHandles(hObject, handles);
+                
+                labelsArray{count} = labels(7);
+                set(findobj(gcf, 'Tag', 'text1'), 'String', labelsArray{count - 1});
+                set(findobj(gcf, 'Tag', 'text2'), 'String', labelsArray{count});
             end
 
     end
@@ -392,12 +399,12 @@ function e_etapa = escolhaEtapa
     txt = uicontrol('Parent',d,...
            'Style','text',...
            'Position',[0 90 280 35],...
-           'String','Contar sementes ou executar um pós-processamento?');
+           'String','Selecione a próxima etapa:');
        
     popup = uicontrol('Parent',d,...
            'Style','popup',...
            'Position',[50 60 150 25],...
-           'String',{'Contar Sementes';'Pós-processamento'},...
+           'String',{'Contar Sementes';'Pós-processamento';'Selecionar ROI'},...
            'Callback',@popup_callback);
        
     btn = uicontrol('Parent',d,...
