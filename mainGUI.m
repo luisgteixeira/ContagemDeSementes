@@ -98,6 +98,11 @@ function abrir_Callback(hObject, eventdata, handles)
     global count   % Contador referencia fase atual do processo
     global labels
     global labelsArray % Array com os textos de todas as operacoes
+    global eh_roi
+    global original_cortada
+    
+    original_cortada = [];
+    eh_roi = false;
     
     labels = {'Imagem Original'; 'H + V'; 'Resultado K-means'; 'Imagem Binarizada';'Imagem Erodida'; 'Imagem Dilatada'; 'ROI'; 'Imagem Final'};
     
@@ -128,6 +133,8 @@ function salvar_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 global imgsArray
 global count
+global eh_roi
+global original_cortada
 
     if count > 0
         [path_file, user_cancel] = imsave();
@@ -135,6 +142,17 @@ global count
             imwrite(imgsArray{count}, path_file);
             handles.px2min = NaN;
             guidata(hObject, handles);
+        end
+        
+        if eh_roi == true && ~isempty(original_cortada)
+            eh_roi = false;
+            
+            [path_file, user_cancel] = imsave();
+            if ~user_cancel
+                imwrite(original_cortada, path_file);
+                handles.px2min = NaN;
+                guidata(hObject, handles);
+            end
         end
     else
         msgbox('Imagem Atual nao foi gerada!', 'Error', 'Error');
@@ -153,6 +171,9 @@ function pushbutton1_Callback(hObject, eventdata, handles)
     global count
     global labels
     global labelsArray
+    global eh_roi
+    global original_cortada
+    
     count = count + 1;
     
     switch count
@@ -270,7 +291,9 @@ function pushbutton1_Callback(hObject, eventdata, handles)
                     end
                 end
             elseif strcmp(e_etapa, 'Selecionar ROI')
-                imgsArray{count} = selecionaROI(imgsArray{count - 1});
+                eh_roi = true;
+                
+                [imgsArray{count}, original_cortada] = selecionaROI(imgsArray{count - 1}, imgsArray{1});
                 trocaHandles(hObject, handles);
                 
                 labelsArray{count} = labels(7);

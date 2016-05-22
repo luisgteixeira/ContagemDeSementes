@@ -1,4 +1,4 @@
-function [ imagem_cortada ] = selecionaROI( imagem )
+function [ imagem_cortada, original_cortada ] = selecionaROI( imagem, imagem_original )
 
     [l, c] = size(imagem);
     Cmin = c;
@@ -50,8 +50,9 @@ function [ imagem_cortada ] = selecionaROI( imagem )
     tam_linha = Lmax - Lmin + (2 * excesso_linha);
     tam_coluna = Cmax - Cmin + (2 * excesso_coluna);
     
-    janela_corte = [centro_coluna-(tam_coluna/2) centro_linha-(tam_linha/2) tam_coluna tam_linha];
+    janela_corte = [centro_coluna-(tam_coluna/2) centro_linha-(tam_linha/2) tam_coluna tam_linha]; 
     
     imagem_cortada = imcrop(imagem, janela_corte);
+    original_cortada = imcrop(imagem_original, janela_corte);
     
 end
