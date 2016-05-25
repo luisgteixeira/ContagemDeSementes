@@ -104,7 +104,7 @@ function abrir_Callback(hObject, eventdata, handles)
     original_cortada = [];
     eh_roi = false;
     
-    labels = {'Imagem Original'; 'H + V'; 'Resultado K-means'; 'Imagem Binarizada';'Imagem Erodida'; 'Imagem Dilatada'; 'ROI'; 'Imagem Final'};
+    labels = {'Imagem Original'; 'H + V'; 'Resultado K-means'; 'Imagem Binarizada'; 'Imagem Erodida'; 'Imagem Dilatada'; 'ROI'; 'PP automático'; 'Imagem Final'};
     
     [path_file, user_cancel] = imgetfile();
     if ~user_cancel
@@ -265,7 +265,7 @@ function pushbutton1_Callback(hObject, eventdata, handles)
                 
 %                 trocaHandles(hObject, handles);
 % 
-%                 labelsArray{count} = labels(8);
+%                 labelsArray{count} = labels(9);
 %                 set(findobj(gcf, 'Tag', 'text1'), 'String', labelsArray{count - 1});
 %                 set(findobj(gcf, 'Tag', 'text2'), 'String', labelsArray{count});
                 
@@ -299,6 +299,15 @@ function pushbutton1_Callback(hObject, eventdata, handles)
                 labelsArray{count} = labels(7);
                 set(findobj(gcf, 'Tag', 'text1'), 'String', labelsArray{count - 1});
                 set(findobj(gcf, 'Tag', 'text2'), 'String', labelsArray{count});
+            elseif strcmp(e_etapa, 'PP automático')
+                
+                imgsArray{count} = posProcessamentoAutomatico(imgsArray{count - 1});
+                trocaHandles(hObject, handles);
+                
+                labelsArray{count} = labels(8);
+                set(findobj(gcf, 'Tag', 'text1'), 'String', labelsArray{count - 1});
+                set(findobj(gcf, 'Tag', 'text2'), 'String', labelsArray{count});
+                
             end
 
     end
@@ -427,7 +436,7 @@ function e_etapa = escolhaEtapa
     popup = uicontrol('Parent',d,...
            'Style','popup',...
            'Position',[50 60 150 25],...
-           'String',{'Contar Sementes';'Pós-processamento';'Selecionar ROI'},...
+           'String',{'Contar Sementes';'Pós-processamento';'Selecionar ROI';'PP automático'},...
            'Callback',@popup_callback);
        
     btn = uicontrol('Parent',d,...
