@@ -1,7 +1,8 @@
 clear
 clc
 
-arq = fopen('vetor_de_atributos-hsv.txt', 'a');
+arq = fopen('vetor_de_atributos.txt', 'a');
+% arq = fopen('vetor_de_atributos-hsv.txt', 'a');
 
 for flag = 1 : 3
     
@@ -15,24 +16,24 @@ for flag = 1 : 3
     end
     
     img_original = imread(strcat(cereal, '_original.png'));
-    img_original = rgb2hsv(img_original);
+%     img_original = rgb2hsv(img_original);
     img_binarizada = imread(strcat(cereal, '.png'));
     
-    [L, n] = bwlabel(img_binarizada);
+    [img_label, n] = bwlabel(img_binarizada);
     
     
-    for i=1: n 
+    for i = 1:n 
         
-        img_aux = zeros(size(L));
-        img_aux(find(L == i)) = 255;
+        img_aux = zeros(size(img_label));
+        img_aux(find(img_label == i)) = 255;
         
-        [A, B] = selecionaROI (img_aux, img_original);
+        [binaria_cortada, original_cortada] = selecionaROI (img_aux, img_original);
         %imshow(A);
-        R = B(:,:,1);
-        G = B(:,:,2);
-        B = B(:,:,3);
+        R = original_cortada(:,:,1);
+        G = original_cortada(:,:,2);
+        B = original_cortada(:,:,3);
         
-        R(find(A == 0)) = 0;
+        R(find(binaria_cortada == 0)) = 0;
         
         glcmR = graycomatrix(R);
         atributosR = graycoprops(glcmR);
@@ -45,7 +46,7 @@ for flag = 1 : 3
         mR = mean(mean(glcmR));
         
         
-        G(find(A == 0)) = 0;
+        G(find(binaria_cortada == 0)) = 0;
        
         glcmG = graycomatrix(G);
         atributosG = graycoprops(glcmG);
@@ -57,7 +58,7 @@ for flag = 1 : 3
         entG = entropy(glcmG);     
         mG = mean(mean(glcmG));
         
-        B(find(A == 0)) = 0;
+        B(find(binaria_cortada == 0)) = 0;
         
         glcmB = graycomatrix(B);
         atributosB = graycoprops(glcmB);
@@ -69,48 +70,43 @@ for flag = 1 : 3
         entB = entropy(glcmB);     
         mB = mean(mean(glcmB));
         
-        tam = length(find( A == 255 ));
+        tam = length(find( binaria_cortada == 255 ));
         
-          
-                
-                %Atributos Banda R
-                fprintf(arq, '%f, ', smaR);
-                fprintf(arq, '%f, ', corrR);
-                fprintf(arq, '%f, ', contR);
-                fprintf(arq, '%f, ', homoR);
-                fprintf(arq, '%f, ', dvR);
-                fprintf(arq, '%f, ', entR);
-                fprintf(arq, '%f, ', mR);
-                
-                %Atributos Banda G
-                fprintf(arq, '%f, ', smaG);
-                fprintf(arq, '%f, ', corrG);
-                fprintf(arq, '%f, ', contG);
-                fprintf(arq, '%f, ', homoG);
-                fprintf(arq, '%f, ', dvG);
-                fprintf(arq, '%f, ', entG);
-                fprintf(arq, '%f, ', mG);
-                
-                 %Atributos Banda B
-                fprintf(arq, '%f, ', smaB);
-                fprintf(arq, '%f, ', corrB);
-                fprintf(arq, '%f, ', contB);
-                fprintf(arq, '%f, ', homoB);
-                fprintf(arq, '%f, ', dvB);
-                fprintf(arq, '%f, ', entB);
-                fprintf(arq, '%f, ', mB);
-               
-       
-                fprintf(arq, '%d, '  , tam);
-                fprintf(arq, '%d'  , flag);
-                fprintf(arq, '\n');
+        
+        %Atributos Banda R
+        fprintf(arq, '%f, ', smaR);
+        fprintf(arq, '%f, ', corrR);
+        fprintf(arq, '%f, ', contR);
+        fprintf(arq, '%f, ', homoR);
+        fprintf(arq, '%f, ', dvR);
+        fprintf(arq, '%f, ', entR);
+        fprintf(arq, '%f, ', mR);
+
+        %Atributos Banda G
+        fprintf(arq, '%f, ', smaG);
+        fprintf(arq, '%f, ', corrG);
+        fprintf(arq, '%f, ', contG);
+        fprintf(arq, '%f, ', homoG);
+        fprintf(arq, '%f, ', dvG);
+        fprintf(arq, '%f, ', entG);
+        fprintf(arq, '%f, ', mG);
+
+        %Atributos Banda B
+        fprintf(arq, '%f, ', smaB);
+        fprintf(arq, '%f, ', corrB);
+        fprintf(arq, '%f, ', contB);
+        fprintf(arq, '%f, ', homoB);
+        fprintf(arq, '%f, ', dvB);
+        fprintf(arq, '%f, ', entB);
+        fprintf(arq, '%f, ', mB);
+
+
+        fprintf(arq, '%d, '  , tam);
+        fprintf(arq, '%d'  , flag);
+        fprintf(arq, '\n');
 
     end
-        %imshow(img_original), figure, imshow(img_aux);
-        %[A, B] = selecionaROI (img_aux, img_original);
-         imshow(B)%, figure, imshow(A);
     
 end
-
 
 fclose(arq);
