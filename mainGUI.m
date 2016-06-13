@@ -216,58 +216,32 @@ function pushbutton1_Callback(hObject, eventdata, handles)
             e_etapa = escolhaEtapa;
             
             if strcmp(e_etapa, 'Contar Sementes')
-                % Imagem em tons de cinza das sementes detectadas
-                img = imgsArray{count-1};
+                if ~isempty(original_cortada)
+                    imgsArray{count} = contaSementes(original_cortada, imgsArray{count-1});
+                    trocaHandles(hObject, handles);
 
-                [bw, ~, ~] = maiorRegiao(img);
-                
-                s = regionprops(bw, 'MajorAxisLength'); % Tamanho do maior elemento
-                tam = s.MajorAxisLength * 6 / 10;   % 60% do tamanho do maior elemento
-                bw = imdilate(img, strel('disk', round(tam)));
-                
-                % Maior regiao com a imagem ja dilatada, contendo apenas as
-                % regioes gerais de cada grupo
-                [~, L, n] = maiorRegiao(bw);
-                
-                
-                for k = 1 : n
-%                     % Sinaliza que ainda nao encontrou o primeiro pixel regiao
-%                     flag = true;
-%                     % Posicao a ser escrita a quantidade de sementes
-%                     pos = [0 0];
+                    labelsArray{count} = labels(9);
+                    set(findobj(gcf, 'Tag', 'text1'), 'String', labelsArray{count - 1});
+                    set(findobj(gcf, 'Tag', 'text2'), 'String', labelsArray{count});
                     
-                    img_aux = L;
-                    img_aux(L~=k) = 0;
-                    
-                    % Imagem que auxiliara na contagem de cada grupo de semente
-                    img2 = zeros(size(img));
-                    
-                    for i = 1 : size(img,1)
-                        for j = 1 : size(img,2)
-                            % Regiao esta na mascara e eh uma das sementes
-                            % detectadas
-                            if img_aux(i,j) == k && img(i,j) == 255
-                                img2(i,j) = 255;
-                            end
-                        end
-                    end
-%                     pos = regionprops(img_aux, 'centroid');
+                    count = count + 1;
+                    imgsArray{count} = original_cortada;
+                    trocaHandles(hObject, handles);
 
-                    % Calcula a quantida de sementes na imagem
-                    qntd = quantidadeSementes(img2, 1);
-                    fprintf('[Grupo %d] Contem %d sementes!\n', k, qntd);
-%                     imgsArray{count} = insertText(imgsArray{count},...
-%                                         round(pos(255).Centroid),qntd,'FontSize',...
-%                                         18,'BoxColor','blue','BoxOpacity',...
-%                                         0.4,'TextColor','white');
-                    
+                    labelsArray{count} = labels(1);
+                    set(findobj(gcf, 'Tag', 'text1'), 'String', labelsArray{count - 1});
+                    set(findobj(gcf, 'Tag', 'text2'), 'String', labelsArray{count});
+%                     
+%                     % Calcula a quantida de sementes na imagem
+%                     fprintf('[Grupo %d] Contem %d sementes!\n', k, qntd);
+% %                     imgsArray{count} = insertText(imgsArray{count},...
+% %                                         round(pos(255).Centroid),qntd,'FontSize',...
+% %                                         18,'BoxColor','blue','BoxOpacity',...
+% %                                         0.4,'TextColor','white');
+                else
+                    msgbox('Imagem apenas com a ROI nao foi gerada!', 'Error', 'Error');
+                    count = count - 1;
                 end
-                
-%                 trocaHandles(hObject, handles);
-% 
-%                 labelsArray{count} = labels(9);
-%                 set(findobj(gcf, 'Tag', 'text1'), 'String', labelsArray{count - 1});
-%                 set(findobj(gcf, 'Tag', 'text2'), 'String', labelsArray{count});
                 
             elseif strcmp(e_etapa, 'Pós-processamento')
                 [e_mm, tam] = esolhaMM;
