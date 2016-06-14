@@ -1,0 +1,9 @@
+teste_1:	Erosao = 07 | Dilatacao = 00
+teste_2:	Erosao = 15 | Dilatacao = 07
+teste_3:	Erosao = 20 | Dilatacao = 12
+teste_4:	Erosao = 10 | Dilatacao = 06
+teste_5:	Erosao = 17 | Dilatacao = 09
+teste_6:	Erosao = 12 | Dilatacao = 05
+teste_7:	Erosao = 12 | Dilatacao = 06
+teste_8:	Erosao = 12 | Dilatacao = 03
+teste_9:	Erosao = 08 | Dilatacao = 00
